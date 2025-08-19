@@ -25,6 +25,7 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 public class XposedInit implements IXposedHookLoadPackage {
     @SuppressLint("StaticFieldLeak")
     private static Context mContext;
+    private static List<String> cachedCloneableApps;
 
     @Override
     public void handleLoadPackage(final XC_LoadPackage.LoadPackageParam lpparam) {
@@ -124,9 +125,14 @@ public class XposedInit implements IXposedHookLoadPackage {
         }
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
     private List<String> getCloneableApps() {
         if (mContext == null) {
             return new ArrayList<>();
+        }
+
+        if (cachedCloneableApps != null) {
+            return cachedCloneableApps;
         }
 
         @SuppressLint("DiscouragedApi") List<String> cloneableApps = new ArrayList<>(Arrays.asList(mContext.getResources().getStringArray(mContext.getResources().getIdentifier("cloneable_apps", "array", "android"))));
@@ -146,6 +152,7 @@ public class XposedInit implements IXposedHookLoadPackage {
             }
         }
 
-        return cloneableApps;
+        cachedCloneableApps = cloneableApps;
+        return cachedCloneableApps;
     }
 }
